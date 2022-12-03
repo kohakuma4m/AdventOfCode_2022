@@ -3,7 +3,7 @@
 
 # To create new day solution, run
   - `cargo run -- generate [dayXX]`
-  - This will create next day or `dayXX` solution folder with `templates/default.rs` base file and empty text input file
+  - This will create next day or `dayXX` solution folder with `templates/default.rs` base file and empty text and test input files
   - Already existing solutions folder will be left untouched
   ## Note
   - Since used module must be known at compile time, you will still have to manually uncomment those lines
@@ -18,6 +18,9 @@
 
 # To format code with rustfmt, use
   - `cargo fmt`
+
+# To validate solutions with against test file, use
+  - `cargo test [dayXX]`
 
 # WARNING
   - This is my own personal sandbox. All solutions are work in progress...

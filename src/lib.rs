@@ -89,12 +89,22 @@ pub fn create_solution_files(dir: &str) -> Result<(), Box<dyn Error>> {
 
     let input_file = format!("./src/solutions/{}/input.txt", dir);
     fs::File::create(input_file)?;
+
+    let test_file = format!("./src/solutions/{}/test.txt", dir);
+    fs::File::create(test_file)?;
     Ok(())
 }
 
 /////////////////////////////////////////////////
 
 pub fn read_file(filename: &str) -> Result<String, Box<dyn Error>> {
-    let data = fs::read_to_string(filename)?;
+    let data = match fs::read_to_string(filename) {
+        Ok(data) => data,
+        Err(err) => {
+            eprintln!("Failed to read file: {err}");
+            return Err(Box::new(err));
+        }
+    };
+
     Ok(data)
 }
