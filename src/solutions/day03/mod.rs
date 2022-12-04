@@ -1,8 +1,9 @@
-use std::collections::HashSet;
 use itertools::Itertools;
+use std::collections::HashSet;
 
 pub fn solution1(data: String) -> u32 {
-    let result = data.lines()
+    let result = data
+        .lines()
         .map(|line| get_rucksack_misplaced_items(line))
         .map(|items| {
             // General case if there is more than one misplaced items
@@ -18,7 +19,7 @@ pub fn solution1(data: String) -> u32 {
     result
 }
 
-pub fn solution2(data: String)-> u32 {
+pub fn solution2(data: String) -> u32 {
     let lines: Vec<&str> = data.lines().collect();
 
     let mut items: Vec<char> = vec![];
@@ -42,7 +43,7 @@ pub fn solution2(data: String)-> u32 {
 
 fn get_letter_value(c: &char) -> u32 {
     match c {
-        'a'..='z' => (*c as u32) - 96, // 1-26
+        'a'..='z' => (*c as u32) - 96,      // 1-26
         'A'..='Z' => (*c as u32) - 64 + 26, // 27-52
         _ => panic!("Invalid char {c}")
     }

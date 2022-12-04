@@ -74,20 +74,16 @@ fn char_to_outcome(m: &str) -> Outcome {
 
 fn get_move_to_play(m1: Move, outcome: Outcome) -> Move {
     match outcome {
-        Outcome::Loss => {
-            match m1 {
-                Move::Rock => Move::Scissor,
-                Move::Paper => Move::Rock,
-                Move::Scissor => Move::Paper
-            }
+        Outcome::Loss => match m1 {
+            Move::Rock => Move::Scissor,
+            Move::Paper => Move::Rock,
+            Move::Scissor => Move::Paper
         },
         Outcome::Draw => m1,
-        Outcome::Win => {
-            match m1 {
-                Move::Rock => Move::Paper,
-                Move::Paper => Move::Scissor,
-                Move::Scissor => Move::Rock
-            }
+        Outcome::Win => match m1 {
+            Move::Rock => Move::Paper,
+            Move::Paper => Move::Scissor,
+            Move::Scissor => Move::Rock
         }
     }
 }
