@@ -54,8 +54,8 @@ struct Range {
 }
 
 fn get_ranges(line: &str) -> Vec<Range> {
-    let regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
-    let captures = regex.captures(line).unwrap();
+    let ranges_regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
+    let captures = ranges_regex.captures(line).unwrap();
 
     let r1 = Range { min: captures[1].parse::<i32>().unwrap(), max: captures[2].parse::<i32>().unwrap() };
     let r2 = Range { min: captures[3].parse::<i32>().unwrap(), max: captures[4].parse::<i32>().unwrap() };
