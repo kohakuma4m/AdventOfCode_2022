@@ -123,8 +123,8 @@ fn print_stacks(stacks: &HashMap<i8, Stack>) {
         lines.push(line.clone());
     }
 
-    let separator = (0..stacks.len()*4).map(|_| "-").collect::<String>();
-    let stack_ids_line = stacks.keys().sorted().map(|key| format!(" {}  ", key) ).collect::<String>();
+    let separator = (0..stacks.len() * 4).map(|_| "-").collect::<String>();
+    let stack_ids_line = stacks.keys().sorted().map(|key| format!(" {}  ", key)).collect::<String>();
 
     println!("");
     for l in lines.iter().rev() {

@@ -19,7 +19,7 @@
 # To format code with rustfmt, use
   - `cargo fmt`
 
-# To validate solutions with against test file, use
+# To validate solutions against test files, use
   - `cargo test [dayXX]`
 
 # WARNING
