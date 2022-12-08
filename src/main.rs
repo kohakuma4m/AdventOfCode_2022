@@ -121,8 +121,12 @@ fn run_day_solution(config: ScriptConfig) -> Result<(), Box<dyn Error>> {
         "day07-2" => {
             solutions::day07::solution2(data);
         },
-        // "day08-1" => { solutions::day08::solution1(data); },
-        // "day08-2" => { solutions::day08::solution2(data); },
+        "day08-1" => {
+            solutions::day08::solution1(data);
+        },
+        "day08-2" => {
+            solutions::day08::solution2(data);
+        },
         // "day09-1" => { solutions::day09::solution1(data); },
         // "day09-2" => { solutions::day09::solution2(data); },
         // "day10-1" => { solutions::day10::solution1(data); },
