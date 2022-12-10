@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
-use std::hash::{Hash, Hasher};
 use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
 
 /// A 2d Coordinate
 #[derive(Debug, Copy, Clone)]
@@ -11,8 +11,9 @@ pub struct Coordinate<T> {
 
 // Ordering by (y, x)
 impl<T> Ord for Coordinate<T>
-where T: Ord {
-
+where
+    T: Ord
+{
     fn cmp(&self, other: &Self) -> Ordering {
         let t1 = (&self.y, &self.x);
         let t2 = (&other.y, &other.x);
@@ -54,25 +55,30 @@ where T: Ord {
 }
 
 impl<T> PartialOrd for Coordinate<T>
-where T: Ord {
+where
+    T: Ord
+{
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 // Equality
-impl<T> Eq for Coordinate<T>
-where T: Eq {}
+impl<T> Eq for Coordinate<T> where T: Eq {}
 
 impl<T> PartialEq for Coordinate<T>
-where T: PartialEq {
+where
+    T: PartialEq
+{
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x && self.y == other.y
     }
 }
 
 impl<T> Hash for Coordinate<T>
-where T: Hash {
+where
+    T: Hash
+{
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.x.hash(state);
         self.y.hash(state);
@@ -99,17 +105,17 @@ pub fn get_direction(d: &str) -> Direction {
 }
 
 /// A 2d grid as an hash map of locations
-pub struct Grid<T,V> {
+pub struct Grid<T, V> {
     locations: HashMap<Coordinate<T>, V>
 }
 
-impl<C, V> Grid<C,V>
+impl<C, V> Grid<C, V>
 where
     C: Ord + Copy + From<isize> + Into<isize>,
     V: Eq + PartialEq + Hash,
     Coordinate<C>: Eq + PartialEq + Hash
 {
-    pub fn new() -> Grid<C,V> {
+    pub fn new() -> Grid<C, V> {
         Grid { locations: HashMap::new() }
     }
 

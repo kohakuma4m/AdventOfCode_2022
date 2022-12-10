@@ -1,4 +1,4 @@
-use crate::navigation::{Coordinate, Direction, get_direction, Grid};
+use crate::navigation::{get_direction, Coordinate, Direction, Grid};
 use itertools::Itertools;
 
 pub fn solution1(data: String) -> usize {
@@ -71,17 +71,18 @@ pub fn solution2(data: String) -> usize {
 
 /////////////////////////////////////////////////
 
-
 struct Move {
     direction: Direction,
     nb_steps: i32
 }
 
 fn read_moves(data: String) -> Vec<Move> {
-    data.lines().map(|l| {
-        let (d, n) = l.split_whitespace().collect_tuple().unwrap();
-        return Move { direction: get_direction(d), nb_steps: n.parse::<i32>().unwrap()}
-    }).collect()
+    data.lines()
+        .map(|l| {
+            let (d, n) = l.split_whitespace().collect_tuple().unwrap();
+            return Move { direction: get_direction(d), nb_steps: n.parse::<i32>().unwrap() };
+        })
+        .collect()
 }
 
 #[derive(Debug, Eq, Hash, PartialEq)]
@@ -119,10 +120,20 @@ fn get_next_tail_knot_location(head_knot_location: &Coordinate<isize>, tail_knot
 
     // Tail knot must move to previous head knot location to keep up...
     if dx.abs() > 1 {
-        dx = if dx > 0 { dx - 1 } else { dx + 1 };
+        dx = if dx > 0 {
+            dx - 1
+        }
+        else {
+            dx + 1
+        };
     }
     if dy.abs() > 1 {
-        dy = if dy > 0 { dy - 1 } else { dy + 1 };
+        dy = if dy > 0 {
+            dy - 1
+        }
+        else {
+            dy + 1
+        };
     }
     Coordinate { x: tail_knot_location.x + dx, y: tail_knot_location.y + dy }
 }
