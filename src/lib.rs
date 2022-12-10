@@ -4,6 +4,7 @@ use std::fs;
 use std::path::Path;
 use std::result::Result;
 
+pub mod navigation;
 pub mod solutions;
 
 #[derive(Debug)]

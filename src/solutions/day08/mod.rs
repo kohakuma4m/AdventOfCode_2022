@@ -1,4 +1,4 @@
-use itertools::Itertools;
+use crate::navigation::Coordinate;
 use std::collections::HashMap;
 
 pub fn solution1(data: String) -> usize {
@@ -25,15 +25,9 @@ pub fn solution2(data: String) -> i32 {
 
 /////////////////////////////////////////////////
 
-#[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
-struct Coordinate {
-    x: usize,
-    y: usize
-}
-
 #[derive(Debug)]
 struct Tree {
-    location: Coordinate,
+    location: Coordinate<usize>,
     height: u8
 }
 
@@ -110,11 +104,11 @@ impl Tree {
 struct TreesMap {
     height: usize,
     width: usize,
-    trees: HashMap<Coordinate, Tree>
+    trees: HashMap<Coordinate<usize>, Tree>
 }
 
 impl TreesMap {
-    fn get_tree(&self, location: Coordinate) -> Option<&Tree> {
+    fn get_tree(&self, location: Coordinate<usize>) -> Option<&Tree> {
         self.trees.get(&location)
     }
 
@@ -123,14 +117,12 @@ impl TreesMap {
     }
 
     fn find_best_scenic_score(&self) -> i32 {
-        let test: Vec<i32> = self.trees.values().map(|t| t.calculate_scenic_score(&self)).sorted().collect();
-
         self.trees.values().map(|t| t.calculate_scenic_score(&self)).max().unwrap()
     }
 }
 
 fn read_tree_map(data: String) -> TreesMap {
-    let mut trees: HashMap<Coordinate, Tree> = HashMap::new();
+    let mut trees: HashMap<Coordinate<usize>, Tree> = HashMap::new();
 
     let mut height = 0;
     let mut width = 0;
