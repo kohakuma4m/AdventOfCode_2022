@@ -1,4 +1,4 @@
-use crate::navigation::{get_direction, Coordinate, Direction, Grid};
+use crate::navigation::{str_to_direction, Coordinate, Direction, Grid};
 use itertools::Itertools;
 
 pub fn solution1(data: String) -> usize {
@@ -80,7 +80,7 @@ fn read_moves(data: String) -> Vec<Move> {
     data.lines()
         .map(|l| {
             let (d, n) = l.split_whitespace().collect_tuple().unwrap();
-            return Move { direction: get_direction(d), nb_steps: n.parse::<i32>().unwrap() };
+            return Move { direction: str_to_direction(d), nb_steps: n.parse::<i32>().unwrap() };
         })
         .collect()
 }
