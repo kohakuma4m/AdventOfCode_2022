@@ -1,6 +1,6 @@
 [package]
 name = "aoc2022"
-version = "0.12.1"
+version = "0.13.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 itertools = "0.10.5"
 regex = "1.7.0"
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "1.0.89"
