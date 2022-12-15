@@ -87,7 +87,7 @@ where
 }
 
 /// A 2d direction
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Direction {
     Up,
     Right,
@@ -119,6 +119,31 @@ where
     ]
 }
 
+/// Get direction from location to location
+pub fn get_direction_from_adjacent_locations<T>(start: &Coordinate<T>, end: &Coordinate<T>) -> Direction
+where
+    T: Ord + Eq
+{
+    if start.y == end.y {
+        // Horizontal line
+        if start.x < end.x {
+            Direction::Right
+        }
+        else {
+            Direction::Left
+        }
+    }
+    else {
+        // Vertical line
+        if start.y < end.y {
+            Direction::Up
+        }
+        else {
+            Direction::Down
+        }
+    }
+}
+
 /// A 2d grid implemented as an hash map of locations
 pub struct Grid<T, V> {
     locations: HashMap<Coordinate<T>, V>
@@ -126,12 +151,19 @@ pub struct Grid<T, V> {
 
 impl<T, V> Grid<T, V>
 where
-    T: Ord + Copy + From<isize> + Into<isize>,
-    V: Eq + PartialEq + Hash,
-    Coordinate<T>: Eq + PartialEq + Hash
+    T: Ord + Copy + Hash + From<isize> + Into<isize>,
+    V: Eq
 {
     pub fn new() -> Grid<T, V> {
         Grid { locations: HashMap::new() }
+    }
+
+    pub fn from(grid: &Grid<T, V>) -> Grid<T, V>
+    where
+        T: Copy,
+        V: Copy
+    {
+        Grid { locations: grid.locations.clone() }
     }
 
     pub fn add_location(&mut self, location: Coordinate<T>, value: V) {
@@ -238,7 +270,7 @@ pub struct Path<T> {
 
 impl<T> Path<T>
 where
-    Coordinate<T>: Clone
+    T: Copy
 {
     pub fn new(location: &Coordinate<T>) -> Path<T> {
         Path { locations: vec![location.clone()] }
@@ -263,9 +295,8 @@ pub fn find_shortest_path<T, V>(
     location_validator: Option<Box<dyn Fn(&V, &V) -> bool>>
 ) -> Option<Path<T>>
 where
-    T: Ord + Copy + From<isize> + Into<isize> + Add<isize, Output = T> + Sub<isize, Output = T>,
-    V: Eq + PartialEq + Hash,
-    Coordinate<T>: Eq + PartialEq + Hash
+    T: Ord + Copy + Hash + From<isize> + Into<isize> + Add<isize, Output = T> + Sub<isize, Output = T>,
+    V: Eq
 {
     let mut visited_locations: HashSet<Coordinate<T>> = HashSet::new();
     let mut path_to_explored: Vec<Path<T>> = vec![Path::new(start)];
@@ -314,4 +345,41 @@ where
     }
 
     None
+}
+
+/// Print a path on top of grid map first shortest path found between start location and path target
+pub fn print_path<T, V>(
+    path: &Path<T>,
+    map: &Grid<T, V>,
+    start_value: V,
+    end_value: V,
+    map_direction_to_value: &dyn Fn(&Direction) -> V,
+    empty_value: &V,
+    map_value_to_char: &dyn Fn(&V) -> &str
+) where
+    T: Ord + Copy + Hash + From<isize> + Into<isize>,
+    V: Copy + Eq
+{
+    // New grid to draw on
+    let mut new_map = Grid::from(map);
+
+    let path_length = path.locations.len();
+
+    // Start
+    if path_length > 0 {
+        new_map.add_location(path.locations[0].clone(), start_value);
+    }
+
+    // Middle
+    for i in 1..path_length {
+        let direction = get_direction_from_adjacent_locations(&path.locations[i - 1], &path.locations[i]);
+        new_map.add_location(path.locations[0].clone(), map_direction_to_value(&direction));
+    }
+
+    // End
+    if path_length > 2 {
+        new_map.add_location(path.locations.last().unwrap().clone(), end_value);
+    }
+
+    new_map.print(empty_value, map_value_to_char);
 }
