@@ -43,7 +43,7 @@ pub fn solution2(data: String) -> usize {
 
 /////////////////////////////////////////////////
 
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 enum Symbol {
     Start,
     Goal,
@@ -63,6 +63,7 @@ fn symbol_to_char(symbol: &Symbol) -> &str {
 }
 
 fn read_elevation_map(data: String) -> (Coordinate<isize>, Coordinate<isize>, Grid<isize, Symbol>) {
+    // TODO: usize instead ???
     let mut start: Coordinate<isize> = Coordinate { x: 0, y: 0 };
     let mut goal: Coordinate<isize> = Coordinate { x: 0, y: 0 };
     let mut elevation_map = Grid::new();

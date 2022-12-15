@@ -5,6 +5,15 @@ use std::{cmp::Ordering, fmt::Display};
 pub fn solution1(data: String) -> i32 {
     let packets = read_packets(data);
 
+    #[cfg(test)]
+    {
+        // Debug logs...
+        for p in packets.iter() {
+            println!("Packet --> {}", p);
+        }
+    }
+
+    // Counting packets in correct order
     let mut chunk_idx = 0;
     let mut right_order_chunk_indices = vec![];
     for chunk in &packets.into_iter().chunks(2) {
@@ -31,19 +40,15 @@ pub fn solution1(data: String) -> i32 {
 pub fn solution2(data: String) -> usize {
     let mut packets = read_packets(data);
 
-    let divider1 = Packet { data: vec![PacketData::List(Box::new(vec![PacketData::Value(2)]))] };
-    let divider2 = Packet { data: vec![PacketData::List(Box::new(vec![PacketData::Value(6)]))] };
+    // Adding packet dividers
+    packets.push(Packet { data: vec![PacketData::List(Box::new(vec![PacketData::Value(2)]))] });
+    packets.push(Packet { data: vec![PacketData::List(Box::new(vec![PacketData::Value(6)]))] });
 
-    packets.push(divider1);
-    packets.push(divider2);
+    // Sorting packets
+    let sorted_packets: Vec<Packet> = packets.into_iter().sorted().collect();
 
-    // for p in packets.iter().sorted() {
-    //     println!("sorted: [{}]", p.data.iter().join(", "));
-    // }
-
-    let divider_indices = packets
+    let divider_indices = sorted_packets
         .iter()
-        .sorted()
         .enumerate()
         .map(|(idx, packet)| (idx, packet))
         .filter(|(_, packet)| {
@@ -70,8 +75,18 @@ pub fn solution2(data: String) -> usize {
 
     let result = divider_indices.iter().product();
 
+    #[cfg(test)]
+    {
+        // Debug logs...
+        for p in sorted_packets.iter() {
+            println!("Packet --> {}", p);
+        }
+    }
+
     println!("=========================");
-    println!("Divider packet indices: {:?}", divider_indices);
+    for (idx, indice) in divider_indices.iter().enumerate() {
+        println!("Divider #{} at position {indice} --> {}", idx + 1, &sorted_packets[indice - 1]);
+    }
     println!("=========================");
     println!("Solution2: {result}");
     println!("=========================");
@@ -90,10 +105,12 @@ enum PacketData {
 
 impl Display for PacketData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            PacketData::Value(value) => write!(f, "{}", value),
-            PacketData::List(list) => write!(f, "[{}]", list.iter().map(|data| format!("{}", data)).join(", "))
-        }
+        let content = match self {
+            PacketData::Value(value) => format!("{}", value),
+            PacketData::List(list) => format!("[{}]", list.iter().map(|data| format!("{}", data)).join(","))
+        };
+
+        write!(f, "{}", content)
     }
 }
 
@@ -102,16 +119,18 @@ struct Packet {
     data: Vec<PacketData>
 }
 
+impl Display for Packet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}]", self.data.iter().join(","))
+    }
+}
+
 impl Ord for Packet {
     fn cmp(&self, other: &Self) -> Ordering {
         match is_right_order_pair(&self.data, &other.data) {
             Some(true) => Ordering::Less,     // Left is first, in right order
             Some(false) => Ordering::Greater, // Left should be right
-            None => {
-                println!("left: {}", self.data.iter().join(", "));
-                println!("right: {}", other.data.iter().join(", "));
-                Ordering::Equal
-            }
+            None => Ordering::Equal
         }
     }
 

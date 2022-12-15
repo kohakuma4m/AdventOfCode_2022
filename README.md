@@ -19,8 +19,9 @@
 # To format code with rustfmt, use
   - `cargo fmt`
 
-# To validate solutions against test files, use
-  - `cargo test [dayXX]`
+# To validate solutions against test file(s), use
+  - `cargo test [dayXX] [-- --nocapture]`
+    - `-- --nocapture` option is for when you want to see logs for passing tests also
 
 # WARNING
   - This is my own personal sandbox. All solutions are work in progress...

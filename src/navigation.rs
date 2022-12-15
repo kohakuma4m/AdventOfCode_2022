@@ -138,8 +138,8 @@ where
         self.locations.insert(location, value);
     }
 
-    pub fn update_value(&mut self, location: Coordinate<T>, value: V) {
-        if let Some(v) = self.locations.get_mut(&location) {
+    pub fn update_value(&mut self, location: &Coordinate<T>, value: V) {
+        if let Some(v) = self.locations.get_mut(location) {
             *v = value;
         }
     }
@@ -160,8 +160,13 @@ where
         for y in min_y..max_y + 1 {
             for x in min_x..max_x + 1 {
                 let location = Coordinate { x: T::from(x), y: T::from(y) };
-                if self.locations.get(&location).unwrap() == value {
-                    locations.push(location);
+                match self.locations.get(&location) {
+                    Some(v) => {
+                        if v == value {
+                            locations.push(location);
+                        }
+                    },
+                    None => continue
                 }
             }
         }
@@ -185,10 +190,32 @@ where
         self.locations.keys().max_by_key(|l| l.y).unwrap().y
     }
 
+    pub fn width(&self) -> T {
+        let (min_x, max_x): (isize, isize) = (self.min_x().into(), self.max_x().into());
+
+        if max_x < 0 || min_x > 0 {
+            T::from(max_x - min_x)
+        }
+        else {
+            T::from(max_x - min_x + 1) // Adding 1 for zero
+        }
+    }
+
+    pub fn height(&self) -> T {
+        let (min_y, max_y): (isize, isize) = (self.min_y().into(), self.max_y().into());
+
+        if max_y < 0 || min_y > 0 {
+            T::from(max_y - min_y)
+        }
+        else {
+            T::from(max_y - min_y + 1) // Adding 1 for zero
+        }
+    }
+
     pub fn print(&self, empty_value: &V, map_value_to_char: &dyn Fn(&V) -> &str) {
         let (min_x, max_x): (isize, isize) = (self.min_x().into(), self.max_x().into());
         let (min_y, max_y): (isize, isize) = (self.min_y().into(), self.max_y().into());
-        let width = max_x - min_x + 1;
+        let width = self.width().into();
         let separator = (0..width + 2).map(|_| "-").collect::<String>();
 
         println!("{separator}");
