@@ -1,6 +1,5 @@
-use itertools::Itertools;
-
 use crate::navigation::{Coordinate, Grid};
+use itertools::Itertools;
 
 pub fn solution1(data: String) -> usize {
     let mut cave_map = read_cave_map(data);
@@ -8,7 +7,7 @@ pub fn solution1(data: String) -> usize {
 
     cave_map.print(&Symbol::Empty, &symbol_to_char);
 
-    let result = cave_map.get_locations_with_value(&Symbol::Sand(false)).len();
+    let result = cave_map.get_mapped_locations_with_value(&Symbol::Sand(false)).len();
 
     println!("=========================");
     println!("Solution1: {result}");
@@ -25,7 +24,7 @@ pub fn solution2(data: String) -> usize {
 
     cave_map.print(&Symbol::Empty, &symbol_to_char);
 
-    let result = cave_map.get_locations_with_value(&Symbol::Sand(false)).len();
+    let result = cave_map.get_mapped_locations_with_value(&Symbol::Sand(false)).len();
 
     println!("=========================");
     println!("Solution2: {result}");
@@ -106,7 +105,7 @@ fn read_cave_map(data: String) -> Grid<isize, Symbol> {
 
 fn simulate_sand_flow(cave_map: &mut Grid<isize, Symbol>, y_floor: Option<isize>) {
     let mut is_flowing_into_the_abyss = false;
-    let sand_source = cave_map.get_locations_with_value(&Symbol::Source)[0];
+    let sand_source = cave_map.get_mapped_locations_with_value(&Symbol::Source)[0];
 
     let y_max = match y_floor {
         Some(value) => value,    // Solid floor

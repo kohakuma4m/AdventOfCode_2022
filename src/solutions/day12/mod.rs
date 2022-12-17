@@ -82,7 +82,7 @@ fn read_elevation_map(data: String) -> (Coordinate<isize>, Coordinate<isize>, Gr
                 elevation => Symbol::Elevation(elevation.to_string())
             };
 
-            elevation_map.add_location(Coordinate { x: x as isize, y: y as isize }, value)
+            elevation_map.add_location(Coordinate { x: x as isize, y: y as isize }, value);
         })
     });
 

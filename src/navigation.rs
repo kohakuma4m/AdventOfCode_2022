@@ -1,3 +1,4 @@
+use num::Signed;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
@@ -8,6 +9,15 @@ use std::ops::{Add, Sub};
 pub struct Coordinate<T> {
     pub x: T,
     pub y: T
+}
+
+impl<T> Coordinate<T>
+where
+    T: Copy + Add + Sub + Signed
+{
+    pub fn manhattan_distance(&self, other: &Coordinate<T>) -> T {
+        (self.x - other.x).abs() + (self.y - other.y).abs()
+    }
 }
 
 // Ordering by (y, x)
@@ -166,8 +176,8 @@ where
         Grid { locations: grid.locations.clone() }
     }
 
-    pub fn add_location(&mut self, location: Coordinate<T>, value: V) {
-        self.locations.insert(location, value);
+    pub fn add_location(&mut self, location: Coordinate<T>, value: V) -> Option<V> {
+        return self.locations.insert(location, value);
     }
 
     pub fn update_value(&mut self, location: &Coordinate<T>, value: V) {
@@ -204,6 +214,10 @@ where
         }
 
         locations
+    }
+
+    pub fn get_mapped_locations_with_value(&self, value: &V) -> Vec<Coordinate<T>> {
+        self.locations.iter().filter(|(_, v)| *v == value).map(|(l, _)| Coordinate { x: l.x, y: l.y }).collect()
     }
 
     pub fn min_x(&self) -> T {
