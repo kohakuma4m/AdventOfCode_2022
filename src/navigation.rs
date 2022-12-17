@@ -176,6 +176,14 @@ where
         Grid { locations: grid.locations.clone() }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.locations.is_empty()
+    }
+
+    pub fn size(&self) -> usize {
+        self.locations.len()
+    }
+
     pub fn add_location(&mut self, location: Coordinate<T>, value: V) -> Option<V> {
         return self.locations.insert(location, value);
     }
@@ -218,6 +226,10 @@ where
 
     pub fn get_mapped_locations_with_value(&self, value: &V) -> Vec<Coordinate<T>> {
         self.locations.iter().filter(|(_, v)| *v == value).map(|(l, _)| Coordinate { x: l.x, y: l.y }).collect()
+    }
+
+    pub fn keep_only_matching_locations(&mut self, f: &dyn Fn(&Coordinate<T>, &mut V) -> bool) {
+        self.locations.retain(f);
     }
 
     pub fn min_x(&self) -> T {
