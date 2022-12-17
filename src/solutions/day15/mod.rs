@@ -42,12 +42,12 @@ pub fn solution2(data: String) -> isize {
 
     println!("Mapping all searched locations in {:?}...", boundary);
     println!("-------------------------");
-    let searched_ranges = map_searched_row_ranges(sensors, boundary);
+    let searched_ranges = map_searched_row_ranges(&sensors, &boundary);
 
     println!("=========================");
     println!("Searching for single unsearched location...");
     println!("-------------------------");
-    let result = match find_hidden_beacon(searched_ranges, size) {
+    let result = match find_hidden_beacon(&searched_ranges, &boundary) {
         Some(location) => {
             println!("-------------------------");
             println!("Location found at {:?}", location);
@@ -131,25 +131,22 @@ fn search_row(sensors: Vec<Sensor>, y: isize) -> HashSet<Coordinate<isize>> {
 }
 
 #[derive(Debug)]
-struct Range<T>
-where
-    T: Ord + Eq
-{
-    min: T,
-    max: T
+struct Range {
+    min: isize,
+    max: isize
 }
 
 #[derive(Debug)]
-struct Boundary<T> {
-    x_min: T,
-    x_max: T,
-    y_min: T,
-    y_max: T
+struct Boundary {
+    x_min: isize,
+    x_max: isize,
+    y_min: isize,
+    y_max: isize
 }
 
 // Mapping all searched location ranges for all rows inside boundary
-fn map_searched_row_ranges(sensors: Vec<Sensor>, boundary: Boundary<isize>) -> HashMap<isize, Vec<Range<isize>>> {
-    let mut searched_ranges: HashMap<isize, Vec<Range<isize>>> = HashMap::new();
+fn map_searched_row_ranges(sensors: &Vec<Sensor>, boundary: &Boundary) -> HashMap<isize, Vec<Range>> {
+    let mut searched_ranges: HashMap<isize, Vec<Range>> = HashMap::new();
 
     for (sensor_idx, sensor) in sensors.iter().enumerate() {
         print_sensor(sensor_idx, &sensor);
@@ -193,12 +190,12 @@ fn map_searched_row_ranges(sensors: Vec<Sensor>, boundary: Boundary<isize>) -> H
     searched_ranges
 }
 
-fn find_hidden_beacon(searched_ranges: HashMap<isize, Vec<Range<isize>>>, size: isize) -> Option<Coordinate<isize>> {
+fn find_hidden_beacon(searched_ranges: &HashMap<isize, Vec<Range>>, boundary: &Boundary) -> Option<Coordinate<isize>> {
     let mut n = 0;
 
     // Randomizing rows in case we are lucky...
     let mut rng = rand::thread_rng();
-    let mut y_values: Vec<isize> = (0..size + 1).collect();
+    let mut y_values: Vec<isize> = (0..boundary.y_max + 1).collect();
     y_values.shuffle(&mut rng);
 
     for y in y_values.into_iter() {
@@ -219,8 +216,8 @@ fn find_hidden_beacon(searched_ranges: HashMap<isize, Vec<Range<isize>>>, size: 
         }
 
         n += 1;
-        if size < 100 || n % (size / 100) == 0 {
-            println!("Searching all rows at random ({:4.1}%)...", 100.0 * n as f32 / size as f32);
+        if boundary.y_max < 100 || n % (boundary.y_max / 100) == 0 {
+            println!("Searching all rows at random ({:4.1}%)...", 100.0 * n as f32 / boundary.y_max as f32);
         }
     }
 
