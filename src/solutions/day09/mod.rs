@@ -1,4 +1,4 @@
-use crate::navigation::{str_to_direction, Coordinate, Direction, Grid};
+use crate::navigation::{Coordinate, Direction, Grid};
 use itertools::Itertools;
 
 pub fn solution1(data: String) -> usize {
@@ -74,6 +74,16 @@ pub fn solution2(data: String) -> usize {
 struct Move {
     direction: Direction,
     nb_steps: i32
+}
+
+pub fn str_to_direction(d: &str) -> Direction {
+    match d {
+        "U" => Direction::Up,
+        "R" => Direction::Right,
+        "D" => Direction::Down,
+        "L" => Direction::Left,
+        _ => panic!("Invalid direction {d}")
+    }
 }
 
 fn read_moves(data: String) -> Vec<Move> {

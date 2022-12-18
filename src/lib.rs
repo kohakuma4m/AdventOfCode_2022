@@ -6,6 +6,7 @@ use std::result::Result;
 
 pub mod circuit;
 pub mod navigation;
+pub mod navigation3d;
 pub mod solutions;
 
 #[derive(Debug)]
