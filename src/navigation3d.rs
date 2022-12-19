@@ -317,10 +317,10 @@ where
     V: Eq
 {
     let mut visited_locations: HashSet<Coordinate3D<T>> = HashSet::new();
-    let mut path_to_explored: Vec<Path<T>> = vec![Path::new(start)];
+    let mut paths_to_explored: Vec<Path<T>> = vec![Path::new(start)];
 
-    while path_to_explored.len() > 0 {
-        let current_paths: Vec<Path<T>> = path_to_explored.drain(..).collect();
+    while paths_to_explored.len() > 0 {
+        let current_paths: Vec<Path<T>> = paths_to_explored.drain(..).collect();
 
         for path in current_paths {
             let current_location = path.locations.last().unwrap();
@@ -353,7 +353,7 @@ where
                 }
 
                 visited_locations.insert(location);
-                path_to_explored.push(next_path);
+                paths_to_explored.push(next_path);
             }
         }
     }

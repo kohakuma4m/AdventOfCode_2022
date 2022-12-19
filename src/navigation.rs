@@ -308,14 +308,14 @@ where
     V: Eq
 {
     let mut visited_locations: HashSet<Coordinate<T>> = HashSet::new();
-    let mut path_to_explored: Vec<Path<T>> = vec![Path::new(start)];
+    let mut paths_to_explored: Vec<Path<T>> = vec![Path::new(start)];
 
     let mut path_size = 0;
-    while path_to_explored.len() > 0 {
+    while paths_to_explored.len() > 0 {
         path_size += 1;
         println!("Path size: {path_size}");
 
-        let current_paths: Vec<Path<T>> = path_to_explored.drain(..).collect();
+        let current_paths: Vec<Path<T>> = paths_to_explored.drain(..).collect();
 
         for path in current_paths {
             let current_location = path.locations.last().unwrap();
@@ -348,7 +348,7 @@ where
                 }
 
                 visited_locations.insert(location);
-                path_to_explored.push(next_path);
+                paths_to_explored.push(next_path);
             }
         }
     }
