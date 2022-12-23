@@ -105,17 +105,83 @@ pub enum Direction {
     Down
 }
 
-/// Get all four cardinal adjacent locations to location
-pub fn get_adjacent_cardinal_locations<T>(location: &Coordinate<T>) -> Vec<Coordinate<T>>
+/// A 2d cardinal direction
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub enum CardinalDirection {
+    North,
+    NorthEast,
+    East,
+    SouthEast,
+    South,
+    SouthWest,
+    West,
+    NorthWest
+}
+
+/// Get oposite direction
+pub fn get_opposite_direction(direction: &Direction) -> Direction {
+    match direction {
+        Direction::Up => Direction::Down,
+        Direction::Right => Direction::Left,
+        Direction::Down => Direction::Up,
+        Direction::Left => Direction::Right
+    }
+}
+
+/// Get all four cardinal adjacent locations
+pub fn get_adjacent_orthogonal_locations<T>(location: &Coordinate<T>) -> Vec<Coordinate<T>>
 where
     T: Copy + Add<isize, Output = T> + Sub<isize, Output = T>
 {
     vec![
-        Coordinate { x: location.x - 1, y: location.y }, // Left
-        Coordinate { x: location.x + 1, y: location.y }, // Right
         Coordinate { x: location.x, y: location.y - 1 }, // Up
+        Coordinate { x: location.x + 1, y: location.y }, // Right
         Coordinate { x: location.x, y: location.y + 1 }, // Down
+        Coordinate { x: location.x - 1, y: location.y }, // Left
     ]
+}
+
+/// Get all four diagonal adjacent locations
+pub fn get_adjacent_diagonal_locations<T>(location: &Coordinate<T>) -> Vec<Coordinate<T>>
+where
+    T: Copy + Add<isize, Output = T> + Sub<isize, Output = T>
+{
+    vec![
+        Coordinate { x: location.x + 1, y: location.y - 1 }, // Top-Right
+        Coordinate { x: location.x + 1, y: location.y + 1 }, // Down-Right
+        Coordinate { x: location.x - 1, y: location.y + 1 }, // Down-Left
+        Coordinate { x: location.x - 1, y: location.y - 1 }, // Top-Left
+    ]
+}
+
+/// Get adjacent location in direction
+pub fn get_adjacent_locations_in_direction<T>(location: &Coordinate<T>, direction: &Direction) -> Coordinate<T>
+where
+    T: Copy + Add<isize, Output = T> + Sub<isize, Output = T>
+{
+    match direction {
+        Direction::Up => Coordinate { x: location.x, y: location.y - 1 },
+        Direction::Right => Coordinate { x: location.x + 1, y: location.y },
+        Direction::Down => Coordinate { x: location.x, y: location.y + 1 },
+        Direction::Left => Coordinate { x: location.x - 1, y: location.y }
+    }
+}
+
+/// Get adjacent location in cardinal direction
+pub fn get_adjacent_locations_in_cardinal_direction<T>(location: &Coordinate<T>, direction: &CardinalDirection) -> Coordinate<T>
+where
+    T: Copy + Add<isize, Output = T> + Sub<isize, Output = T>
+{
+    match direction {
+        CardinalDirection::North => Coordinate { x: location.x, y: location.y - 1 },
+        CardinalDirection::NorthEast => Coordinate { x: location.x + 1, y: location.y - 1 },
+        CardinalDirection::East => Coordinate { x: location.x + 1, y: location.y },
+        CardinalDirection::SouthEast => Coordinate { x: location.x + 1, y: location.y + 1 },
+        CardinalDirection::South => Coordinate { x: location.x, y: location.y + 1 },
+        CardinalDirection::SouthWest => Coordinate { x: location.x - 1, y: location.y + 1 },
+        CardinalDirection::West => Coordinate { x: location.x - 1, y: location.y },
+        CardinalDirection::NorthWest => Coordinate { x: location.x - 1, y: location.y - 1 }
+    }
 }
 
 /// Get direction from location to location
@@ -139,6 +205,31 @@ where
         }
         else {
             Direction::Down
+        }
+    }
+}
+
+/// A 2d rotation
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub enum Rotation {
+    Clockwise,
+    CounterClockwise
+}
+
+/// Get new direction after rotation from current direction
+pub fn get_direction_after_rotation(direction: &Direction, rotation: &Rotation) -> Direction {
+    match rotation {
+        Rotation::Clockwise => match direction {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Up
+        },
+        Rotation::CounterClockwise => match direction {
+            Direction::Up => Direction::Left,
+            Direction::Right => Direction::Up,
+            Direction::Down => Direction::Right,
+            Direction::Left => Direction::Down
         }
     }
 }
@@ -321,7 +412,7 @@ where
             let current_location = path.locations.last().unwrap();
             let current_value = map.get_value(&current_location).unwrap();
 
-            let adjacent_locations = get_adjacent_cardinal_locations(&current_location);
+            let adjacent_locations = get_adjacent_orthogonal_locations(&current_location);
             let next_locations: Vec<Coordinate<T>> = adjacent_locations
                 .into_iter()
                 // Removing locations outside map

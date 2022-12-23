@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::navigation3d::{find_shortest_path, get_adjacent_cardinal_locations, Coordinate3D, Grid3D, PathTarget};
+use crate::navigation3d::{find_shortest_path, get_adjacent_orthogonal_locations, Coordinate3D, Grid3D, PathTarget};
 
 use itertools::Itertools;
 
@@ -45,7 +45,7 @@ fn count_non_touching_faces(cubes: &HashSet<Coordinate3D<isize>>) -> usize {
 
     for c in cubes.iter() {
         // Two unit cubes are touching in one direction if coordinate are adjacent
-        for c2 in get_adjacent_cardinal_locations(&c).into_iter() {
+        for c2 in get_adjacent_orthogonal_locations(&c).into_iter() {
             if cubes.contains(&c2) == false {
                 nb_faces += 1;
             }
@@ -99,7 +99,7 @@ fn count_external_faces(cubes: &HashSet<Coordinate3D<isize>>, cubes_map: &Grid3D
     println!("Mapping non touching faces...");
     for c in cubes.iter() {
         // Two unit cubes are touching in one direction if coordinate are adjacent
-        for c2 in get_adjacent_cardinal_locations(&c).into_iter() {
+        for c2 in get_adjacent_orthogonal_locations(&c).into_iter() {
             if cubes.contains(&c2) == false {
                 nb_faces += 1;
 

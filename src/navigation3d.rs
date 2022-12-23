@@ -110,7 +110,7 @@ pub enum Direction {
 }
 
 /// Get all four cardinal adjacent locations to location
-pub fn get_adjacent_cardinal_locations<T>(location: &Coordinate3D<T>) -> Vec<Coordinate3D<T>>
+pub fn get_adjacent_orthogonal_locations<T>(location: &Coordinate3D<T>) -> Vec<Coordinate3D<T>>
 where
     T: Copy + Add<isize, Output = T> + Sub<isize, Output = T>
 {
@@ -326,7 +326,7 @@ where
             let current_location = path.locations.last().unwrap();
             let current_value = map.get_value(&current_location).unwrap();
 
-            let adjacent_locations = get_adjacent_cardinal_locations(&current_location);
+            let adjacent_locations = get_adjacent_orthogonal_locations(&current_location);
             let next_locations: Vec<Coordinate3D<T>> = adjacent_locations
                 .into_iter()
                 // Removing locations outside map
