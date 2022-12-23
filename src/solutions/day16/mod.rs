@@ -6,7 +6,8 @@ use std::{
     rc::Rc
 };
 
-// TODO: make generic Graph library with Node and Edges ?
+// TODO: Add cache of visited state (start, remaining time, remaining valves) for both part1 & 2 to avoid re-calculating states all the time
+// TODO: Switch to depth first search instead and avoid exploring state which can't beat current best later ???
 
 pub fn solution1(data: String) -> usize {
     let network = read_network_data(data);
@@ -36,13 +37,30 @@ pub fn solution1(data: String) -> usize {
 }
 
 pub fn solution2(data: String) -> usize {
-    println!("{}", data);
+    let network = read_network_data(data);
+    let paths = map_all_shortest_paths(&network);
+
+    #[cfg(test)]
+    for ((v1, v2), p) in paths.iter().sorted_by_key(|(key, _)| *key) {
+        println!("{} --> {} (time needed: {}) --> {:?}", v1, v2, p.weight, p.locations);
+    }
+
+    let paths = find_optimal_combined_paths(&network, &paths, "AA", 26, 2);
+    let result = paths.iter().map(|p| p.released_pressure).sum();
 
     println!("=========================");
-    println!("Solution2: ");
+    for path in paths.iter() {
+        println!("Subpath : {:?}", path.locations);
+        println!(
+            "Opened valves history: {:?}",
+            path.opened_valves_history.iter().sorted_by_key(|(time, _)| -(**time as isize)).collect::<Vec<(&usize, &String)>>()
+        );
+    }
+    println!("=========================");
+    println!("Solution2: {result}");
     println!("=========================");
 
-    0
+    result
 }
 
 /////////////////////////////////////////////////
@@ -118,7 +136,7 @@ fn read_network_data(data: String) -> ValveNetwork {
 #[derive(Debug, Clone)]
 struct PartialPath {
     locations: Vec<String>,
-    weight: usize
+    weight: usize // Duration
 }
 
 fn map_all_shortest_paths(network: &ValveNetwork) -> HashMap<(String, String), PartialPath> {
@@ -139,6 +157,7 @@ fn map_all_shortest_paths(network: &ValveNetwork) -> HashMap<(String, String), P
     paths
 }
 
+// Breath first search solution with cache of visited nodes
 fn find_shortest_path(network: &ValveNetwork, start: &String, goal: &String) -> Option<PartialPath> {
     let mut visited_locations: HashSet<String> = HashSet::new();
     let mut paths_to_explored: Vec<PartialPath> = vec![PartialPath { locations: vec![start.clone()], weight: 0 }];
@@ -182,21 +201,37 @@ struct GlobalPath {
 }
 
 fn find_optimal_path(network: &ValveNetwork, paths: &HashMap<(String, String), PartialPath>, start: &str, max_duration: usize) -> GlobalPath {
+    let remaining_valves = HashSet::from_iter(network.valves.keys().map(|k| k.clone()).filter(|id| {
+        // Excluding all destination valves with zero flow rate, as we won't waste time opening them
+        network.valves.get(id).unwrap().as_ref().borrow().flow_rate > 0
+    }));
+
+    find_optimal_subset_path(network, paths, start, remaining_valves, max_duration, true)
+}
+
+// Breath first search solution without cache
+fn find_optimal_subset_path(
+    network: &ValveNetwork,
+    paths: &HashMap<(String, String), PartialPath>,
+    start: &str,
+    remaining_valves: HashSet<String>,
+    max_duration: usize,
+    show_progress: bool
+) -> GlobalPath {
     let mut found_paths: Vec<GlobalPath> = vec![];
     let mut path_to_explored: Vec<GlobalPath> = vec![GlobalPath {
         locations: vec![String::from(start)],
         opened_valves_history: HashMap::new(),
-        remaining_valves: HashSet::from_iter(network.valves.keys().map(|k| k.clone()).filter(|id| {
-            // Excluding all destination valves with zero flow rate, as we won't waste time opening them
-            network.valves.get(id).unwrap().as_ref().borrow().flow_rate > 0
-        })),
+        remaining_valves,
         remaining_time: max_duration,
         released_pressure: 0
     }];
 
-    println!("-------------------------");
     while path_to_explored.len() > 0 {
-        println!("Number of paths to explore: {}", path_to_explored.len());
+        if show_progress {
+            println!("-------------------------");
+            println!("Number of paths to explore: {}", path_to_explored.len());
+        }
 
         let mut current_paths: Vec<GlobalPath> = path_to_explored.drain(..).collect();
         for path in current_paths.iter_mut() {
@@ -244,11 +279,84 @@ fn find_optimal_path(network: &ValveNetwork, paths: &HashMap<(String, String), P
             }
         }
     }
-    println!("-------------------------");
-    println!("Number of paths found: {}", found_paths.len());
+
+    if show_progress {
+        println!("-------------------------");
+        println!("Number of paths found: {}", found_paths.len());
+    }
 
     // Return optimal path (will always exists)
     found_paths.into_iter().max_by_key(|p| p.released_pressure).unwrap()
+}
+
+// Semi brute-force approach... takes about 2 hours to run all combinations of disjoint subsets but will find one optimal solution
+fn find_optimal_combined_paths(
+    network: &ValveNetwork,
+    paths: &HashMap<(String, String), PartialPath>,
+    start: &str,
+    max_duration: usize,
+    nb_players: usize
+) -> Vec<GlobalPath> {
+    // List of valves to open
+    let remaining_valves: HashSet<String> = HashSet::from_iter(network.valves.keys().map(|k| k.clone()).filter(|id| {
+        // Excluding all destination valves with zero flow rate, as we won't waste time opening them
+        network.valves.get(id).unwrap().as_ref().borrow().flow_rate > 0
+    }));
+
+    // Splitting all valves to open between number of players, each in charge of only an independent subset in network...
+    let subsets_combinations_iterator = remaining_valves
+        .iter()
+        .powerset()
+        // Removing enmpty and full set because the goal is to share workload...
+        .filter(|s| s.len() > 0 && s.len() < remaining_valves.len())
+        .combinations(nb_players - 1)
+        .map(|combinations| {
+            let mut assigned_valves: HashSet<String> = HashSet::new();
+
+            let mut subsets: Vec<HashSet<String>> = vec![];
+            for c in combinations.into_iter() {
+                for s in c.iter() {
+                    assigned_valves.insert(s.to_string());
+                }
+
+                subsets.push(HashSet::from_iter(c.into_iter().map(|s| s.to_string())));
+            }
+
+            // Adding remaining subset to last player
+            let unassigned_valves: HashSet<String> = remaining_valves.difference(&assigned_valves).map(|s| s.to_string()).collect();
+            subsets.push(unassigned_valves);
+
+            subsets
+        });
+
+    // Then we can just find the best optimal path for each subset and combine the results to find the best global solution
+    let mut nb_combinations = 0;
+    let mut max_released_pressure = 0;
+    let mut partial_solutions = vec![];
+    for (idx, combination) in subsets_combinations_iterator.enumerate() {
+        nb_combinations += 1;
+
+        let mut partial_paths = vec![];
+        for subset in combination.iter() {
+            let remaining_valves_subset = HashSet::from_iter(subset.into_iter().map(|k| k.clone()));
+            partial_paths.push(find_optimal_subset_path(network, paths, start, remaining_valves_subset, max_duration, false));
+        }
+
+        let max_pressure = partial_paths.iter().map(|p| p.released_pressure).sum::<usize>();
+        if max_pressure > max_released_pressure {
+            max_released_pressure = max_pressure;
+            println!("-------------------------");
+            println!("Combination #{} --> {:?}", idx + 1, combination);
+            println!("Max pressure: {}", partial_paths.iter().map(|p| p.released_pressure).sum::<usize>());
+        }
+
+        partial_solutions.push(partial_paths);
+    }
+    println!("-------------------------");
+    println!("Number of explored combinations: {}", nb_combinations);
+
+    // Return optimal path (will always exists)
+    partial_solutions.into_iter().max_by_key(|s| s.iter().map(|s| s.released_pressure).sum::<usize>()).unwrap()
 }
 
 /////////////////////////////////////////////////
