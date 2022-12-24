@@ -97,7 +97,7 @@ where
 }
 
 /// A 2d direction
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum Direction {
     Up,
     Right,
@@ -106,7 +106,7 @@ pub enum Direction {
 }
 
 /// A 2d cardinal direction
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum CardinalDirection {
     North,
     NorthEast,
@@ -287,6 +287,28 @@ where
                 match self.locations.get(&location) {
                     Some(v) => {
                         if v == value {
+                            locations.push(location);
+                        }
+                    },
+                    None => continue
+                }
+            }
+        }
+
+        locations
+    }
+
+    pub fn get_locations_with_values(&self, values: Vec<&V>) -> Vec<Coordinate<T>> {
+        let (min_x, max_x): (isize, isize) = (self.min_x().into(), self.max_x().into());
+        let (min_y, max_y): (isize, isize) = (self.min_y().into(), self.max_y().into());
+
+        let mut locations = vec![];
+        for y in min_y..max_y + 1 {
+            for x in min_x..max_x + 1 {
+                let location = Coordinate { x: T::from(x), y: T::from(y) };
+                match self.locations.get(&location) {
+                    Some(v) => {
+                        if values.contains(&v) {
                             locations.push(location);
                         }
                     },
