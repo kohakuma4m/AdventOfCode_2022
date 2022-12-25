@@ -36,7 +36,7 @@ fn generate_next_day_solution(config: ScriptConfig) -> Result<(), Box<dyn Error>
         }
     };
 
-    if folder == "day25" {
+    if folder == "day26" {
         return Ok(()); // No more solution
     }
 
@@ -223,8 +223,12 @@ fn run_day_solution(config: ScriptConfig) -> Result<(), Box<dyn Error>> {
         "day24-2" => {
             solutions::day24::solution2(data);
         },
-        // "day25-1" => { solutions::day25::solution1(data); },
-        // "day25-2" => { solutions::day25::solution2(data); }
+        "day25-1" => {
+            solutions::day25::solution1(data);
+        },
+        "day25-2" => {
+            solutions::day25::solution2(data);
+        },
         _ => ()
     }
 
